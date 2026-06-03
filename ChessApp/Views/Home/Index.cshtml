@@ -1,0 +1,192 @@
+@{
+    ViewData["Title"] = "CheckMate";
+}
+
+<!-- LOBBY VIEW (Default) -->
+<div id="lobby-view" class="view-state active">
+    <div class="lobby-header">
+        <h1>CHECKMATE</h1>
+        <p>Select your game mode and enter the battlefield</p>
+    </div>
+
+    <div class="lobby-split-container">
+        <!-- Left Side: Game Modes List -->
+        <div class="lobby-left-column">
+            <h2 class="section-title">Play Modes</h2>
+            <div class="mode-list">
+                <div class="mode-list-item glass-panel" data-mode="LocalPlayer">
+                    <div class="mode-list-icon-container">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mode-list-svg"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <div class="mode-list-info">
+                        <div class="mode-list-header">
+                            <span class="mode-title">Local 1v1</span>
+                            <span class="diff-badge local">PVP</span>
+                        </div>
+                        <span class="mode-desc">Play locally turn-by-turn with a friend on the same screen.</span>
+                    </div>
+                </div>
+
+                <div class="mode-list-item glass-panel" data-mode="Asmeer">
+                    <img src="/images/asmeer.png" class="mode-list-img" alt="Asmeer Bot" />
+                    <div class="mode-list-info">
+                        <div class="mode-list-header">
+                            <span class="mode-title">Asmeer Bot</span>
+                            <span class="mode-rating">300</span>
+                        </div>
+                        <span class="mode-desc">Novice opponent. Prioritizes captures and center cells but makes mistakes.</span>
+                    </div>
+                </div>
+
+                <div class="mode-list-item glass-panel" data-mode="Fawad">
+                    <img src="/images/fawad.png" class="mode-list-img" alt="Fawad Bot" />
+                    <div class="mode-list-info">
+                        <div class="mode-list-header">
+                            <span class="mode-title">Fawad Bot</span>
+                            <span class="mode-rating">700</span>
+                        </div>
+                        <span class="mode-desc">Intermediate opponent. Evaluates trades and avoids basic hanging piece blunders.</span>
+                    </div>
+                </div>
+
+                <div class="mode-list-item glass-panel" data-mode="Huzaifa">
+                    <img src="/images/huzaifa.png" class="mode-list-img" alt="Huzaifa Bot" />
+                    <div class="mode-list-info">
+                        <div class="mode-list-header">
+                            <span class="mode-title">Huzaifa Bot</span>
+                            <span class="mode-rating">1000</span>
+                        </div>
+                        <span class="mode-desc">Grandmaster opponent. Uses a deep Alpha-Beta Minimax search with opening books.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Leaderboards & Statistics -->
+        <div class="lobby-right-column">
+            <!-- Bot Performance Stats -->
+            <div class="dashboard-panel glass-panel">
+                <h3 class="panel-title">Bot Records</h3>
+                <div class="table-container">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>Bot Opponent</th>
+                                <th>Wins</th>
+                                <th>Losses</th>
+                                <th>Draws</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bot-stats-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Global Leaderboard -->
+            <div class="dashboard-panel glass-panel">
+                <h3 class="panel-title">Top Arena Players</h3>
+                <div class="table-container">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Username</th>
+                                <th>Wins</th>
+                                <th>Losses</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GAME ARENA VIEW (Initially Hidden) -->
+<div id="game-view" class="view-state">
+    <div class="game-arena-grid">
+        <!-- Left Column: Stats & Active Saved Games -->
+        <div class="game-arena-left">
+            <div class="dashboard-panel glass-panel">
+                <h3 class="panel-title">Captured Pieces</h3>
+                <div class="captured-box">
+                    <div class="captured-row">
+                        <span class="captured-label">White:</span>
+                        <div class="captured-list" id="captured-white-list">
+                            <!-- Captured icons -->
+                        </div>
+                    </div>
+                    <div class="captured-row">
+                        <span class="captured-label">Black:</span>
+                        <div class="captured-list" id="captured-black-list">
+                            <!-- Captured icons -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Column: Centered Board & Status -->
+        <div class="game-arena-center">
+            <div class="game-arena-header glass-panel">
+                <div class="turn-status-container">
+                    <div class="turn-dot" id="turn-dot"></div>
+                    <span id="turn-text">White's Turn</span>
+                </div>
+                <div class="bot-thinking-label" id="bot-status"></div>
+                <div class="game-opp-display" id="game-opp-display">vs Local PVP</div>
+            </div>
+
+            <div class="board-container">
+                <div class="chessboard" id="chessboard">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+            </div>
+
+            <div class="game-controls-row">
+                <button class="btn btn-secondary" id="btn-leave-game">Leave Game</button>
+                <button class="btn btn-primary" id="btn-undo">Undo Move</button>
+            </div>
+        </div>
+
+        <!-- Right Column: Move Log -->
+        <div class="game-arena-right">
+            <div class="dashboard-panel glass-panel history-panel">
+                <h3 class="panel-title">Move History</h3>
+                <div class="moves-header-row">
+                    <div class="move-num-hdr">#</div>
+                    <div class="move-val-hdr white-hdr">White</div>
+                    <div class="move-val-hdr black-hdr">Black</div>
+                </div>
+                <div class="moves-list" id="move-history-list">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GAME OVER OVERLAY & MODAL -->
+<div class="modal-overlay" id="game-over-overlay">
+    <div class="game-over-modal glass-panel">
+        <div class="modal-glow-icon" id="modal-glow-icon"></div>
+        <h2 class="modal-title" id="modal-outcome-title">VICTORY</h2>
+        <p class="modal-subtitle" id="modal-outcome-subtitle">White won by Checkmate!</p>
+        
+        <div class="modal-actions">
+            <button class="btn btn-primary" id="btn-modal-replay">Replay Match</button>
+            <button class="btn btn-secondary" id="btn-modal-home">Return to Lobby</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/chess-engine.js" asp-append-version="true"></script>
+    <script src="~/js/chess-bots.js" asp-append-version="true"></script>
+    <script src="~/js/ui.js" asp-append-version="true"></script>
+}

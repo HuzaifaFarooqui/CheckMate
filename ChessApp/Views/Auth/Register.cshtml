@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="auth-container">
+    <div class="auth-card glass-panel">
+        <div class="auth-header">
+            <h2>Join the Arena</h2>
+            <p>Create an account to track your progress and play against bots</p>
+        </div>
+
+        <form asp-action="Register" method="post" class="auth-form">
+            <div class="form-error-summary">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Choose a battlefield name" required autocomplete="username" />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required autocomplete="email" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Choose a strong password" required autocomplete="new-password" />
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a asp-action="Login">Log In here</a></p>
+        </div>
+    </div>
+</div>
