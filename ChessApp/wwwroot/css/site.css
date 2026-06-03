@@ -1085,3 +1085,171 @@ tr:nth-child(3) .rank-badge { background: #cd7f32; color: #000; }
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.16);
 }
+
+/* ----------------------------------------------------
+   4. RESPONSIVE LAYOUT & MEDIA QUERIES
+   ---------------------------------------------------- */
+
+/* Base container modifications for default layout controls */
+.game-controls-row {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+    margin-top: 1rem;
+}
+.game-controls-row .btn {
+    flex: 1;
+}
+
+/* Tablets and medium screens (max-width: 1024px) */
+@media (max-width: 1024px) {
+    .app-header {
+        padding: 0.75rem 1.5rem;
+        margin: 0.75rem;
+    }
+    
+    .lobby-split-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .app-main-content {
+        padding: 1rem 1.5rem;
+    }
+}
+
+/* Small tablets / large phones (max-width: 768px) */
+@media (max-width: 768px) {
+    .app-header {
+        margin: 0.5rem;
+        padding: 0.6rem 1rem;
+        border-radius: 12px;
+    }
+    
+    .header-container {
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: center;
+    }
+    
+    .app-nav {
+        width: 100%;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .theme-toggle-btn {
+        margin-right: 0;
+    }
+    
+    .lobby-header h1 {
+        font-size: 2.5rem;
+    }
+    
+    .game-arena-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .game-arena-left, .game-arena-right {
+        order: 2;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .game-arena-center {
+        order: 1;
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .captured-box {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}
+
+/* Mobile Phones (max-width: 480px) */
+@media (max-width: 480px) {
+    .lobby-header h1 {
+        font-size: 2rem;
+        letter-spacing: 1.5px;
+    }
+    
+    .lobby-header p {
+        font-size: 0.95rem;
+    }
+    
+    .logo-text {
+        font-size: 1.25rem;
+    }
+    
+    .user-welcome {
+        font-size: 0.85rem;
+    }
+    
+    .mode-list-item {
+        padding: 0.85rem 1rem;
+        gap: 1rem;
+    }
+    
+    .mode-list-icon-container, 
+    .mode-list-img {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+    }
+    
+    .mode-list-header .mode-title {
+        font-size: 1rem;
+    }
+    
+    .mode-desc {
+        font-size: 0.75rem;
+    }
+    
+    .board-container {
+        border-width: 3px;
+        border-radius: 8px;
+    }
+    
+    .game-arena-header {
+        padding: 0.6rem 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+    
+    .game-controls-row {
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        padding: 0.55rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .app-footer {
+        font-size: 0.75rem;
+        padding: 1rem;
+    }
+    
+    .auth-card {
+        padding: 1.5rem;
+    }
+    
+    .auth-header h2 {
+        font-size: 1.6rem;
+    }
+    
+    .game-over-modal {
+        padding: 2rem 1.25rem;
+    }
+    
+    .modal-title {
+        font-size: 1.8rem;
+    }
+}
