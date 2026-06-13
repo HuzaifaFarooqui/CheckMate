@@ -1,50 +1,45 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ChessApp.Data;
 
 namespace ChessApp.Controllers
 {
     public class StatsController : Controller
     {
-        private readonly ChessDbContext _context;
+        private readonly JsonDataStore _db;
 
-        public StatsController(ChessDbContext context)
+        public StatsController(JsonDataStore db)
         {
-            _context = context;
+            _db = db;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetBotStats()
+        public IActionResult GetBotStats()
         {
-            var stats = await _context.BotStats
+            var stats = _db.BotStats
                 .Select(b => new {
                     botName = b.BotName,
                     wins = b.Wins,
                     losses = b.Losses,
                     draws = b.Draws
                 })
-                .ToListAsync();
+                .ToList();
 
             return Json(new { success = true, stats = stats });
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetLeaderboard()
+        public IActionResult GetLeaderboard()
         {
-            var leaderboard = await _context.Users
-                .OrderByDescending(u => u.Wins)
-                .ThenBy(u => u.Losses)
-                .Take(10)
+            var leaderboard = _db.GetLeaderboard(10)
                 .Select(u => new {
                     username = u.Username,
                     wins = u.Wins,
                     losses = u.Losses,
                     draws = u.Draws
                 })
-                .ToListAsync();
+                .ToList();
 
             return Json(new { success = true, leaderboard = leaderboard });
         }

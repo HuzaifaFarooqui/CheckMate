@@ -1,9 +1,7 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ChessApp.Data;
 using ChessApp.Models;
 
@@ -11,11 +9,11 @@ namespace ChessApp.Controllers
 {
     public class GameController : Controller
     {
-        private readonly ChessDbContext _context;
+        private readonly JsonDataStore _db;
 
-        public GameController(ChessDbContext context)
+        public GameController(JsonDataStore db)
         {
-            _context = context;
+            _db = db;
         }
 
         private int? GetCurrentUserId()
@@ -29,7 +27,7 @@ namespace ChessApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateGame(string opponentType)
+        public IActionResult CreateGame(string opponentType)
         {
             opponentType = string.IsNullOrWhiteSpace(opponentType) ? "LocalPlayer" : opponentType.Trim();
             int? userId = GetCurrentUserId();
@@ -45,16 +43,15 @@ namespace ChessApp.Controllers
                 UpdatedAt = DateTime.UtcNow
             };
 
-            _context.Games.Add(game);
-            await _context.SaveChangesAsync();
+            _db.AddGame(game);
 
             return Json(new { success = true, gameId = game.Id, fen = game.Fen, opponentType = game.OpponentType });
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveMove(int gameId, string moveText, string piece, string color, int moveNumber, string currentFen)
+        public IActionResult SaveMove(int gameId, string moveText, string piece, string color, int moveNumber, string currentFen)
         {
-            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
+            var game = _db.FindGameById(gameId);
             if (game == null)
             {
                 return Json(new { success = false, message = "Game not found." });
@@ -75,35 +72,33 @@ namespace ChessApp.Controllers
                 Timestamp = DateTime.UtcNow
             };
 
-            _context.Moves.Add(move);
+            _db.AddMove(move);
 
             // Update game state
             game.Fen = currentFen;
             game.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
+            _db.SaveChanges();
 
             return Json(new { success = true });
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetGame(int gameId)
+        public IActionResult GetGame(int gameId)
         {
-            var game = await _context.Games
-                .Include(g => g.Moves)
-                .FirstOrDefaultAsync(g => g.Id == gameId);
+            var game = _db.FindGameById(gameId);
 
             if (game == null)
             {
                 return Json(new { success = false, message = "Game not found." });
             }
 
-            var movesList = game.Moves.OrderBy(m => m.MoveNumber).Select(m => new {
-                m.MoveText,
-                m.Piece,
-                m.Color,
-                m.MoveNumber
-            }).ToList();
+            var movesList = _db.GetMovesForGame(gameId)
+                .Select(m => new {
+                    m.MoveText,
+                    m.Piece,
+                    m.Color,
+                    m.MoveNumber
+                }).ToList();
 
             return Json(new { 
                 success = true, 
@@ -117,7 +112,7 @@ namespace ChessApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetActiveGames()
+        public IActionResult GetActiveGames()
         {
             int? userId = GetCurrentUserId();
             if (userId == null)
@@ -125,23 +120,21 @@ namespace ChessApp.Controllers
                 return Json(new { success = false, message = "Unauthorized." });
             }
 
-            var activeGames = await _context.Games
-                .Where(g => g.UserId == userId && g.Status == "Active")
-                .OrderByDescending(g => g.UpdatedAt)
+            var activeGames = _db.GetActiveGamesForUser(userId.Value)
                 .Select(g => new {
                     gameId = g.Id,
                     opponentType = g.OpponentType,
                     updatedAt = g.UpdatedAt.ToString("yyyy-MM-dd HH:mm:ss")
                 })
-                .ToListAsync();
+                .ToList();
 
             return Json(new { success = true, games = activeGames });
         }
 
         [HttpPost]
-        public async Task<IActionResult> SaveGameStatus(int gameId, string winner, string status)
+        public IActionResult SaveGameStatus(int gameId, string winner, string status)
         {
-            var game = await _context.Games.FirstOrDefaultAsync(g => g.Id == gameId);
+            var game = _db.FindGameById(gameId);
             if (game == null)
             {
                 return Json(new { success = false, message = "Game not found." });
@@ -157,7 +150,7 @@ namespace ChessApp.Controllers
             if (game.OpponentType != "LocalPlayer")
             {
                 // Fetch the BotStats record
-                var botStat = await _context.BotStats.FirstOrDefaultAsync(b => b.BotName.ToLower() == game.OpponentType.ToLower());
+                var botStat = _db.FindBotStatsByName(game.OpponentType);
                 if (botStat != null)
                 {
                     if (winner == "White") // White represents the User
@@ -165,7 +158,7 @@ namespace ChessApp.Controllers
                         botStat.Losses++;
                         if (userId != null)
                         {
-                            var user = await _context.Users.FindAsync(userId);
+                            var user = _db.FindUserById(userId.Value);
                             if (user != null) user.Wins++;
                         }
                     }
@@ -174,7 +167,7 @@ namespace ChessApp.Controllers
                         botStat.Wins++;
                         if (userId != null)
                         {
-                            var user = await _context.Users.FindAsync(userId);
+                            var user = _db.FindUserById(userId.Value);
                             if (user != null) user.Losses++;
                         }
                     }
@@ -183,7 +176,7 @@ namespace ChessApp.Controllers
                         botStat.Draws++;
                         if (userId != null)
                         {
-                            var user = await _context.Users.FindAsync(userId);
+                            var user = _db.FindUserById(userId.Value);
                             if (user != null) user.Draws++;
                         }
                     }
@@ -199,7 +192,7 @@ namespace ChessApp.Controllers
                 }
             }
 
-            await _context.SaveChangesAsync();
+            _db.SaveChanges();
 
             return Json(new { success = true });
         }

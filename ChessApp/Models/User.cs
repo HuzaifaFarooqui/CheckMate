@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace ChessApp.Models
 {
@@ -15,8 +14,5 @@ namespace ChessApp.Models
         public int Wins { get; set; } = 0;
         public int Losses { get; set; } = 0;
         public int Draws { get; set; } = 0;
-
-        [JsonIgnore]
-        public List<Game> Games { get; set; } = new();
     }
 }
