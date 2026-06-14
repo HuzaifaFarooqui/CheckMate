@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ChessApp.Data;
 using ChessApp.Models;
 
@@ -15,11 +14,11 @@ namespace ChessApp.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly ChessDbContext _context;
+        private readonly JsonDataStore _db;
 
-        public AuthController(ChessDbContext context)
+        public AuthController(JsonDataStore db)
         {
-            _context = context;
+            _db = db;
         }
 
         [HttpGet]
@@ -42,7 +41,7 @@ namespace ChessApp.Controllers
                 return View();
             }
 
-            if (await _context.Users.AnyAsync(u => u.Username.ToLower() == username.ToLower()))
+            if (_db.UsernameExists(username))
             {
                 ModelState.AddModelError("", "Username is already taken.");
                 return View();
@@ -58,8 +57,7 @@ namespace ChessApp.Controllers
                 Draws = 0
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            _db.AddUser(user);
 
             await SignInUserAsync(user);
 
@@ -86,7 +84,7 @@ namespace ChessApp.Controllers
                 return View();
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower());
+            var user = _db.FindUserByUsername(username);
             if (user == null || user.PasswordHash != HashPassword(password))
             {
                 ModelState.AddModelError("", "Invalid username or password.");

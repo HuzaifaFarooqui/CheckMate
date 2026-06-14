@@ -1,5 +1,4 @@
 using System;
-using System.Text.Json.Serialization;
 
 namespace ChessApp.Models
 {
@@ -7,10 +6,6 @@ namespace ChessApp.Models
     {
         public int Id { get; set; }
         public int GameId { get; set; }
-        
-        [JsonIgnore]
-        public Game Game { get; set; } = null!;
-        
         public string MoveText { get; set; } = null!; // E.g., "e2e4", "e7e5", "g1f3"
         public string Piece { get; set; } = null!; // "p", "r", "n", "b", "q", "k"
         public string Color { get; set; } = null!; // "w" or "b"

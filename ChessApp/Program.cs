@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using ChessApp.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -7,20 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Configure Dynamic Database Provider
-var dbProvider = builder.Configuration["DatabaseProvider"] ?? "Sqlite";
-if (dbProvider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
-{
-    var connString = builder.Configuration.GetConnectionString("SqlServerConnection");
-    builder.Services.AddDbContext<ChessDbContext>(options =>
-        options.UseSqlServer(connString));
-}
-else
-{
-    var connString = builder.Configuration.GetConnectionString("SqliteConnection") ?? "Data Source=chess.db";
-    builder.Services.AddDbContext<ChessDbContext>(options =>
-        options.UseSqlite(connString));
-}
+// Register JSON Data Store as a Singleton (shared across all requests)
+builder.Services.AddSingleton<JsonDataStore>();
 
 // Add Session
 builder.Services.AddSession(options =>
@@ -57,13 +44,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-// Initialize Database automatically on startup
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ChessDbContext>();
-    // EnsureCreated checks if database exists. If not, it creates it and runs OnModelCreating seeds.
-    dbContext.Database.EnsureCreated();
-}
 
 app.Run();
